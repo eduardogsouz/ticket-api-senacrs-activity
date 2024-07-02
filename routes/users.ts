@@ -80,8 +80,24 @@ router.post("/", verificaToken, async (req, res) => {
 
   // para o campo senha, atribui o hash gerado
   try {
+    const checkEmailAvailability = async (email: string) => {
+      return !(await prisma.user.findFirst({
+        where: {
+          email
+        }
+      }));
+    };
+
+    const isChosenEmailAvailable = await checkEmailAvailability(email);
+
+    if (!isChosenEmailAvailable) {
+      return res
+        .status(409)
+        .json({ message: "Esse email não está disponível" });
+    }
+
     const usuario = await prisma.user.create({
-      data: { name, email, password: hash },
+      data: { name, email, password: hash }
     });
     res.status(201).json(usuario);
   } catch (error) {
