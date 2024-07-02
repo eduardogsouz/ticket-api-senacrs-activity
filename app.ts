@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/tickets", ticketsRoutes);
-// app.use("/login", loginRoutes);
+app.use("/login", loginRoutes);
 app.use("/users", usersRoutes);
 
 app.listen(port, () => {
