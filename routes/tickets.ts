@@ -37,97 +37,82 @@ router.get("/", async (_req, res) => {
   }
 });
 
-router.post(
-  "/",
-  // verificaToken,
-  async (req: any, res) => {
-    // dados que são fornecidos no corpo da requisição
-    const { description, eventName, price, type, userId } = req.body;
+router.post("/", verificaToken, async (req: any, res) => {
+  // dados que são fornecidos no corpo da requisição
+  const { description, eventName, price, type } = req.body;
 
-    // dado que é acrescentado pelo Token (verificaToken) no req
-    // const { userLogadoId } = req;
+  // dado que é acrescentado pelo Token (verificaToken) no req
+  const { userLogadoId } = req;
 
-    if (!eventName || !description || !price || !type) {
-      res
-        .status(400)
-        .json({ erro: "Informe: Nome do Evento, descrição, preço e tipo" });
-      return;
-    }
-
-    try {
-      const ticket = await prisma.ticket.create({
-        data: {
-          description,
-          eventName,
-          price,
-          type,
-          userId,
-          // usuarioId: userLogadoId
-        },
-      });
-      res.status(201).json(ticket);
-    } catch (error) {
-      res.status(400).json(error);
-    }
+  if (!eventName || !description || !price || !type) {
+    res
+      .status(400)
+      .json({ erro: "Informe: Nome do Evento, descrição, preço e tipo" });
+    return;
   }
-);
 
-router.delete(
-  "/:id",
-  // verificaToken,
-  async (req: any, res) => {
-    const { id } = req.params;
-
-    try {
-      const ticket = await prisma.ticket.delete({
-        where: { id: Number(id) },
-      });
-
-      // await prisma.log.create({
-      //   data: {
-      //     descricao: "Exclusão De Animal no Zoo",
-      //     complemento: `Funcionário: ${req.userLogadoNome}`,
-      //     usuarioId: req.userLogadoId,
-      //   },
-      // });
-      res.status(200).json(ticket);
-    } catch (error) {
-      res.status(400).json(error);
-    }
+  try {
+    const ticket = await prisma.ticket.create({
+      data: {
+        description,
+        eventName,
+        price,
+        type,
+        userId: userLogadoId,
+      },
+    });
+    res.status(201).json(ticket);
+  } catch (error) {
+    res.status(400).json(error);
   }
-);
+});
 
-router.put(
-  "/:id",
-  // verificaToken
-  async (req, res) => {
-    const { id } = req.params;
-    const { description, eventName, price, type, userId } = req.body;
+router.delete("/:id", verificaToken, async (req: any, res) => {
+  const { id } = req.params;
 
-    if (!eventName || !description || !price || !type) {
-      res
-        .status(400)
-        .json({ erro: "Informe: Nome do Evento, descrição, preço e tipo" });
-      return;
-    }
+  try {
+    const ticket = await prisma.ticket.delete({
+      where: { id: Number(id) },
+    });
 
-    try {
-      const ticket = await prisma.ticket.update({
-        where: { id: Number(id) },
-        data: {
-          description,
-          eventName,
-          price,
-          type,
-          userId,
-          // usuarioId: userLogadoId
-        },
-      });
-      res.status(200).json(ticket);
-    } catch (error) {
-      res.status(400).json(error);
-    }
+    // await prisma.log.create({
+    //   data: {
+    //     descricao: "Exclusão De Animal no Zoo",
+    //     complemento: `Funcionário: ${req.userLogadoNome}`,
+    //     usuarioId: req.userLogadoId,
+    //   },
+    // });
+    res.status(200).json(ticket);
+  } catch (error) {
+    res.status(400).json(error);
   }
-);
+});
+
+router.put("/:id", verificaToken, async (req, res) => {
+  const { id } = req.params;
+  const { description, eventName, price, type } = req.body;
+
+  if (!eventName || !description || !price || !type) {
+    res
+      .status(400)
+      .json({ erro: "Informe: Nome do Evento, descrição, preço e tipo" });
+    return;
+  }
+
+  try {
+    const ticket = await prisma.ticket.update({
+      where: { id: Number(id) },
+      data: {
+        description,
+        eventName,
+        price,
+        type,
+      },
+    });
+    res.status(200).json(ticket);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
 
 export default router;
