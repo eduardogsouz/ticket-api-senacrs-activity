@@ -75,13 +75,13 @@ router.delete("/:id", verificaToken, async (req: any, res) => {
       where: { id: Number(id) },
     });
 
-    // await prisma.log.create({
-    //   data: {
-    //     descricao: "Exclusão De Animal no Zoo",
-    //     complemento: `Funcionário: ${req.userLogadoNome}`,
-    //     usuarioId: req.userLogadoId,
-    //   },
-    // });
+    await prisma.log.create({
+      data: {
+        description: "Exclusão De Ticket",
+        complement: `Usuário: ${req.userLogadoNome}`,
+        userId: req.userLogadoId,
+      },
+    });
     res.status(200).json(ticket);
   } catch (error) {
     res.status(400).json(error);

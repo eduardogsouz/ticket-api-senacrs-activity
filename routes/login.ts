@@ -44,13 +44,13 @@ router.post("/", async (req, res) => {
         token,
       });
     } else {
-      // await prisma.log.create({
-      //   data: {
-      //     descricao: "Tentativa de Acesso Inválida",
-      //     complemento: `Funcionário: ${user.email}`,
-      //     userId: user.id,
-      //   },
-      // });
+      await prisma.log.create({
+        data: {
+          description: "Tentativa de Acesso Inválida",
+          complement: `Usuário: ${user.email}`,
+          userId: user.id,
+        },
+      });
 
       res.status(400).json({ erro: errorDefaultMessage });
     }
