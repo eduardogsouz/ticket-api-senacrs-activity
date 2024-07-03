@@ -53,6 +53,14 @@ model Log {
   @@map("logs")
 }
 
+model Recuperation {
+  id    Int    @id @default(autoincrement())
+  email String @db.VarChar(50)
+  code  Int
+
+  @@map("recuperation")
+}
+
 enum eventType {
   Show
   Stand_Up

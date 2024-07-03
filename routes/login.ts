@@ -4,33 +4,7 @@ import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 
-// const prisma = new PrismaClient();
-const prisma = new PrismaClient({
-  log: [
-    {
-      emit: "event",
-      level: "query",
-    },
-    {
-      emit: "stdout",
-      level: "error",
-    },
-    {
-      emit: "stdout",
-      level: "info",
-    },
-    {
-      emit: "stdout",
-      level: "warn",
-    },
-  ],
-});
-
-prisma.$on("query", (e) => {
-  console.log("Query: " + e.query);
-  console.log("Params: " + e.params);
-  console.log("Duration: " + e.duration + "ms");
-});
+const prisma = new PrismaClient();
 const router = Router();
 
 router.post("/", async (req, res) => {
@@ -103,15 +77,21 @@ router.post("/recovery", async (req, res) => {
       res.status(400).json({ erro: errorRecoverMessage });
       return;
     }
+
     let recuperationCode = Math.floor(1000 + Math.random() * 9000);
 
-    res.status(200).json({
-      email: user.email,
-      code: recuperationCode,
+    const recuperation = await prisma.recuperation.create({
+      data: {
+        email: email,
+        code: recuperationCode,
+      },
     });
+
+    res.status(200).json(recuperation);
   } catch (error) {
     res.status(400).json(error);
   }
 });
 
+router.post("/validation", async (req, res) => {});
 export default router;
