@@ -1,28 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 
-import { verificaToken } from "../middewares/verificaToken";
+import { checkToken } from "../middewares/checkToken";
+import { main } from "../helpers/softDelete";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  /***********************************/
-  /* SOFT DELETE MIDDLEWARE */
-  /***********************************/
-  prisma.$use(async (params, next) => {
-    // Check incoming query type
-    if (params.model == "Ticket") {
-      if (params.action == "delete") {
-        // Delete queries
-        // Change action to an update
-        params.action = "update";
-        params.args["data"] = { deleted: true };
-      }
-    }
-    return next(params);
-  });
-}
-main();
+main(prisma);
 
 const router = Router();
 
@@ -37,12 +21,10 @@ router.get("/", async (_req, res) => {
   }
 });
 
-router.post("/", verificaToken, async (req: any, res) => {
-  // dados que são fornecidos no corpo da requisição
+router.post("/", checkToken, async (req: any, res) => {
   const { description, eventName, price, type } = req.body;
 
-  // dado que é acrescentado pelo Token (verificaToken) no req
-  const { userLogadoId } = req;
+  const { userLoggedId } = req;
 
   if (!eventName || !description || !price || !type) {
     res
@@ -58,7 +40,7 @@ router.post("/", verificaToken, async (req: any, res) => {
         eventName,
         price,
         type,
-        userId: userLogadoId,
+        userId: userLoggedId,
       },
     });
     res.status(201).json(ticket);
@@ -67,7 +49,7 @@ router.post("/", verificaToken, async (req: any, res) => {
   }
 });
 
-router.delete("/:id", verificaToken, async (req: any, res) => {
+router.delete("/:id", checkToken, async (req: any, res) => {
   const { id } = req.params;
 
   try {
@@ -78,8 +60,8 @@ router.delete("/:id", verificaToken, async (req: any, res) => {
     await prisma.log.create({
       data: {
         description: "Exclusão De Ticket",
-        complement: `Usuário: ${req.userLogadoNome}`,
-        userId: req.userLogadoId,
+        complement: `Usuário: ${req.userLoggedName}`,
+        userId: req.userLoggedId,
       },
     });
     res.status(200).json(ticket);
@@ -88,7 +70,7 @@ router.delete("/:id", verificaToken, async (req: any, res) => {
   }
 });
 
-router.put("/:id", verificaToken, async (req, res) => {
+router.put("/:id", checkToken, async (req, res) => {
   const { id } = req.params;
   const { description, eventName, price, type } = req.body;
 

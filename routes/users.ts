@@ -4,7 +4,7 @@ import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 
 import { validatePasswordSecurity } from "../helpers/password";
-import { verificaToken } from "../middewares/verificaToken";
+import { checkToken } from "../middewares/checkToken";
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -18,7 +18,7 @@ router.get("/", async (_req, res) => {
   }
 });
 
-router.post("/", verificaToken, async (req, res) => {
+router.post("/", checkToken, async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -33,19 +33,15 @@ router.post("/", verificaToken, async (req, res) => {
     return;
   }
 
-  // 12 é o número de voltas (repetições) que o algoritmo faz
-  // para gerar o salt (sal/tempero)
   const salt = bcrypt.genSaltSync(12);
-  // gera o hash da senha acrescida do salt
   const hash = bcrypt.hashSync(password, salt);
 
-  // para o campo senha, atribui o hash gerado
   try {
     const checkEmailAvailability = async (email: string) => {
       return !(await prisma.user.findFirst({
         where: {
-          email
-        }
+          email,
+        },
       }));
     };
 
@@ -57,10 +53,10 @@ router.post("/", verificaToken, async (req, res) => {
         .json({ message: "Esse email não está disponível" });
     }
 
-    const usuario = await prisma.user.create({
-      data: { name, email, password: hash }
+    const user = await prisma.user.create({
+      data: { name, email, password: hash },
     });
-    res.status(201).json(usuario);
+    res.status(201).json(user);
   } catch (error) {
     res.status(400).json(error);
   }
