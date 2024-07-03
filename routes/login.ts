@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 
+import { validatePasswordSecurity } from "../helpers/password";
+
 const prisma = new PrismaClient();
 const router = Router();
 
@@ -93,5 +95,53 @@ router.post("/recovery", async (req, res) => {
   }
 });
 
-router.post("/validation", async (req, res) => {});
+router.post("/validation", async (req, res) => {
+  const { email, code, newPassword } = req.body;
+
+  const errorValidencionMessage = "Email ou Codigo Incorreto";
+  const errorPasswordMessage = "Por Favor digite a Nova Senha!!";
+  const errorCodeMessage = "Codigo Inexistente";
+
+  if (!email || !code) {
+    res.status(400).json({ erro: errorValidencionMessage });
+    return;
+  }
+
+  if (!newPassword) {
+    res.status(400).json({ erro: errorPasswordMessage });
+  }
+
+  const passwordFormatErrors = validatePasswordSecurity(newPassword);
+
+  if (passwordFormatErrors.length > 0) {
+    res.status(400).json({ errors: passwordFormatErrors });
+    return;
+  }
+
+  const salt = bcrypt.genSaltSync(12);
+  const hash = bcrypt.hashSync(newPassword, salt);
+
+  try {
+    const validationUser = await prisma.recuperation.findFirst({
+      where: { email, code },
+    });
+
+    if (validationUser == null) {
+      res.status(400).json({ erro: errorCodeMessage });
+      return;
+    }
+
+    const _recoveryUser = await prisma.$transaction([
+      prisma.user.updateMany({
+        where: { email: email },
+        data: { password: { set: hash } },
+      }),
+      prisma.recuperation.deleteMany({ where: { code: code } }),
+    ]);
+
+    res.status(200).send("Senha Alterada Com Sucesso!!");
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
 export default router;
