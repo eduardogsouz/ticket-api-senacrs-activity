@@ -131,7 +131,7 @@ router.post("/validation", async (req, res) => {
       return;
     }
 
-    const _recoveryUser = await prisma.$transaction([
+    await prisma.$transaction([
       prisma.user.updateMany({
         where: { email: email },
         data: { password: { set: hash } },
@@ -139,7 +139,7 @@ router.post("/validation", async (req, res) => {
       prisma.recuperation.deleteMany({ where: { code: code } }),
     ]);
 
-    res.status(200).send("Senha Alterada Com Sucesso!!");
+    res.status(200).json({ message: "Senha Alterada Com Sucesso!!" });
   } catch (error) {
     res.status(400).json(error);
   }
