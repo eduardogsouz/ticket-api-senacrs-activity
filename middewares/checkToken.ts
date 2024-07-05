@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
 interface TokenI {
-  userLoggedId: number;
-  userLoggedName: string;
+  userLogadoId: number;
+  userLogadoNome: string;
 }
 
 export function checkToken(
@@ -23,10 +23,10 @@ export function checkToken(
   try {
     const decode = jwt.verify(token, process.env.JWT_KEY as string);
     console.log(decode);
-    const { userLoggedId, userLoggedName } = decode as TokenI;
+    const { userLogadoId, userLogadoNome } = decode as TokenI;
 
-    req.userLoggedId = userLoggedId;
-    req.userLoggedName = userLoggedName;
+    req.userLogadoId = userLogadoId;
+    req.userLogadoNome = userLogadoNome;
 
     next();
   } catch (error) {
