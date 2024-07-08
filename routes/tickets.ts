@@ -24,7 +24,7 @@ router.get("/", async (_req, res) => {
 router.post("/", checkToken, async (req: any, res) => {
   const { description, eventName, price, type } = req.body;
 
-  const { userLogadoId } = req;
+  const { loggedUserId } = req;
 
   if (!eventName || !description || !price || !type) {
     res
@@ -40,7 +40,7 @@ router.post("/", checkToken, async (req: any, res) => {
         eventName,
         price,
         type,
-        userId: userLogadoId,
+        userId: loggedUserId,
       },
     });
     res.status(201).json(ticket);
@@ -60,8 +60,8 @@ router.delete("/:id", checkToken, async (req: any, res) => {
     await prisma.log.create({
       data: {
         description: "Exclusão De Ticket",
-        complement: `Usuário: ${req.userLogadoNome}`,
-        userId: req.userLogadoId,
+        complement: `Usuário: ${req.loggedUserName}`,
+        userId: req.loggedUserId,
       },
     });
     res.status(200).json(ticket);
