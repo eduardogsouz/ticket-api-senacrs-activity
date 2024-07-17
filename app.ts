@@ -6,7 +6,7 @@ import loginRoutes from "./routes/login";
 import usersRoutes from "./routes/users";
 
 const app = express();
-const port = 3000;
+const port = process.env.NODE_LOCAL_PORT;
 
 app.use(cors());
 app.use(express.json());
