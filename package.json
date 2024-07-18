@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.ts",
   "scripts": {
-    "dev": "npx ts-node-dev --respawn app.ts"
+    "dev": "npx ts-node-dev --respawn app.ts",
+    "start:migrate:prod": "prisma migrate dev && npm run dev"
   },
   "keywords": [],
   "author": "",
